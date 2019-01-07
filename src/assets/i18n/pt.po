@@ -2519,10 +2519,10 @@ msgid "For security reasons, a minimum of       <i>2048</i> is recommended."
 msgstr "Por razões de segurança, recomenda-se um mínimo de <i>2048</i>."
 
 msgid "For security reasons, a minimum of 2048       is recommended."
-msgstr "For security reasons, a minimum of 2048       is recommended."
+msgstr "Por razões de segurança, recomenda-se um mínimo de <i>2048</i>."
 
 msgid "For security reasons, a minimum of <i>2048</i>       is recommended."
-msgstr "For security reasons, a minimum of <i>2048</i>       is recommended."
+msgstr "Por razões de segurança, recomenda-se um mínimo de <i>2048</i>."
 
 msgid "Force"
 msgstr "Forçar"
