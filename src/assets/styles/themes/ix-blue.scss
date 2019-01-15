@@ -1,119 +1,7 @@
 @import '~@angular/material/theming';
 @include mat-core();
+@import '../scss-imports/cssvars';
 
-// Use CSS custom properties for palette colors
-// via this mixin.
-@mixin variable($property, $variable, $fallback, $important:null) {
-  #{$property}: $fallback $important;
-  #{$property}: var($variable) $important;
-}
-
-// Solarized Color Palette - don't forget to add accents to theme.service!
-$bg1:    #dddddd; // Canvas like behind the cards
-$bg2:    #ffffff; // Main elements like cards
-$fg1:    #222222; // brighter fonts
-$fg2:    #333333; // normal fonts
-$alt-bg1:     #f8f8f2; // Tables
-$alt-bg2:     #fafaf5; // Menus
-$alt-fg1:     #181a26; // Tables
-$alt-fg2:     #282a36; // Menus
-$yellow:'#f0cb00';
-$orange:'#eec302';
-$red:'#ff0013';
-$magenta:'#d238ff';
-$violet:'#c17ecc';
-$blue:'#00a2ff';
-$cyan:'#00d0d6';
-$green:'#59d600';
-
-// Generated txt colors
-$yellow-txt:'#333';
-$orange-txt:'#eee';
-$red-txt:'#fff';
-$magenta-txt:'#fff';
-$violet-txt:'#fff';
-$blue-txt:'#fff';
-$cyan-txt:'#333';
-$green-txt:'#fff';
-$primary-txt:'#fff';
-$accent-txt:'#333';
-
-$primary: $blue;
-$accent: $yellow;
-$warn: $red;
-$tooltip:'inline';//display property
-$toggle_pw_display_prop: inline;
-$enableWarning: inline;
-
-// Logo images
-$logo: url('assets/images/light-logo.svg');
-$logo-text: url('assets/images/light-logo-text.svg');
-
-$md-primary: (
-    50 : #e0f2fa,
-    100 : #b3dff2,
-    200 : #80caea,
-    300 : #4db5e2,
-    400 : #26a5db,
-    500 : #0095d5,
-    600 : #008dd0,
-    700 : #0082ca,
-    800 : #0078c4,
-    900 : #0067ba,
-    A100 : #e3f1ff,
-    A200 : #b0d7ff,
-    A400 : #7dbdff,
-    A700 : #63b0ff,
-    contrast: (
-        50 : #000000,
-        100 : #000000,
-        200 : #000000,
-        300 : #000000,
-        400 : #000000,
-        500 : #ffffff,
-        600 : #ffffff,
-        700 : #ffffff,
-        800 : #ffffff,
-        900 : #ffffff,
-        A100 : #000000,
-        A200 : #000000,
-        A400 : #000000,
-        A700 : #000000,
-    )
-);
-
-$md-accent: (
-    50 : #fff8e1,
-    100 : #ffecb5,
-    200 : #ffe083,
-    300 : #ffd451,
-    400 : #ffca2c,
-    500 : #ffc107,
-    600 : #ffbb06,
-    700 : #ffb305,
-    800 : #ffab04,
-    900 : #ff9e02,
-    A100 : #ffffff,
-    A200 : #fffaf2,
-    A400 : #ffe4bf,
-    A700 : #ffd9a6,
-    contrast: (
-        50 : #000000,
-        100 : #000000,
-        200 : #000000,
-        300 : #000000,
-        400 : #000000,
-        500 : #000000,
-        600 : #000000,
-        700 : #000000,
-        800 : #000000,
-        900 : #000000,
-        A100 : #000000,
-        A200 : #000000,
-        A400 : #000000,
-        A700 : #000000,
-    )
-);
 
 // mandatory stuff for theming
 $freenas-primary: mat-palette($md-primary);
@@ -350,13 +238,15 @@ $primary-dark: darken( map-get($md-primary, 500), 8% );
   .mat-dialog-container,
   .mat-stepper-horizontal, .mat-stepper-vertical,
   .dx-treelist-container{
-    @include variable(background, --bg2, $bg2, !important);
+    @include variable(background, --bg2, $bg2);
     @include variable(color, --fg2, $fg2);
   }
   .mat-button-toggle-checked{
     background-color:rgba(0,0,0,0.1);
     @include variable(color, --fg2, $fg2); 
   }
+
+  .mat-select-panel .mat-option:hover,
   .ngx-datatable .datatable-body .datatable-row-wrapper:nth-child(odd){
     @include variable(background, --alt-bg1, $alt-bg1);
     @include variable(color, --alt-fg1, $alt-fg1);
@@ -401,8 +291,18 @@ $primary-dark: darken( map-get($md-primary, 500), 8% );
     @include variable(color, --fg2, $fg2, !important);
   }
 
+//  .mat-form-field-underline{
+//    @include variable(background-color, --fg2, $fg2);
+//  }
+
   .mat-form-field-underline{
-    @include variable(background-color, --fg2, $fg2);
+    @include variable(background-color, --fg2, $fg2, !important);
+    opacity:0.35;
+  }
+
+  .mat-warn .mat-form-field-underline,
+  .mat-focused .mat-form-field-underline{
+    opacity:0.85;
   }
 
 #test-alert {
@@ -412,6 +312,7 @@ $primary-dark: darken( map-get($md-primary, 500), 8% );
 .mat-form-field-ripple{
   @include variable(background-color, --primary, $primary);
 }
+
   .mat-color-primary, 
   .mat-button.mat-primary,
   .sidebar-panel.mat-sidenav .sidebar-list-item.open > .mat-list-item-content > a > span, 
@@ -419,6 +320,10 @@ $primary-dark: darken( map-get($md-primary, 500), 8% );
   .mat-form-field.mat-focused.mat-primary
   .mat-focused .mat-form-field-label{
     @include variable(color, --primary, $primary, !important);
+  }
+
+  .mat-form-field-invalid .mat-form-field-label {
+    color: #f44336 !important;
   }
 
   .mat-button.mat-accent {
@@ -499,7 +404,6 @@ $primary-dark: darken( map-get($md-primary, 500), 8% );
 
   // System wide hover effects
   .mat-select-panel .mat-option:focus,
-  .mat-select-panel .mat-option:hover,
   .mat-select-panel .mat-option.mat-selected:not(.mat-option-multiple){ 
     @include variable(background, --primary, $primary, !important);
     @include variable(color, --primary-txt, $primary-txt, !important);
@@ -931,6 +835,10 @@ $primary-dark: darken( map-get($md-primary, 500), 8% );
     @include variable(background, --accent, $accent !important);
   }
 
+  .mat-pseudo-checkbox{
+    display:none ;
+  }
+
   // Bring tooltips to the front in dialogs
   .mat-dialog-container, .mat-dialog-content {
       overflow: visible !important;
@@ -1017,10 +925,15 @@ $primary-dark: darken( map-get($md-primary, 500), 8% );
     @include variable(background-color, --primary, $primary);
   }
 
-  // .mat-progress-bar-buffer {
-  //   @include variable(background-color, --primary, $primary);
-  //   opacity: 0.5;
-  // }
+   .mat-progress-bar-buffer {
+     @include variable(background-color, --primary, $primary);
+     opacity: 0.5;
+   }
+
+   .mat-progress-bar .mat-progress-bar-background{
+     //opacity:0.1;
+     display:none;
+   }
 
   #password, #sed_passwd, #em_pass1, #bsdusr_passwd_currnt,
     #Passphrase, #passphrase, #disk_passwd, #ldap_bindpw, #iscsi_target_auth_secret,
@@ -1133,4 +1046,4 @@ $primary-dark: darken( map-get($md-primary, 500), 8% );
     min-width: 200px;
   }
 
-} // end of ix theme
+ } // end of ix theme
