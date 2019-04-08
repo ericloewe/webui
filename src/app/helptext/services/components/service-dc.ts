@@ -45,7 +45,7 @@ dc_forest_level_options : [
 
 dc_passwd_placeholder : T('Administrator Password'),
 dc_passwd_tooltip: T('Enter the password to be used for the\
- <a href="%%docurl%%/directoryservice.html%%webversion%%#active-directory"\
+ <a href="%%docurl%%/directoryservices.html%%webversion%%#active-directory"\
  target=”_blank”>Active Directory</a> administrator account.'),
 dc_passwd_validation :
       [ Validators.minLength(8), matchOtherValidator('dc_passwd2') ],
@@ -60,5 +60,6 @@ afp_srv_map_acls_options : [
       {label : 'Rights', value : 'rights'},
       {label : 'None', value : 'none'},
       {label : 'Mode', value : 'mode'},
-]
+],
+ad_monitor_warning : T('')
 }

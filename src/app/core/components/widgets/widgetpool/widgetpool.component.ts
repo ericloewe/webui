@@ -6,6 +6,7 @@ import { MaterialModule } from 'app/appMaterial.module';
 import { NgForm } from '@angular/forms';
 import { ChartData } from 'app/core/components/viewchart/viewchart.component';
 import { ViewChartDonutComponent } from 'app/core/components/viewchartdonut/viewchartdonut.component';
+import { StorageService } from '../../../../services/storage.service'
 
 import { WidgetComponent } from 'app/core/components/widgets/widget/widget.component';
 import filesize from 'filesize';
@@ -95,7 +96,7 @@ export class WidgetPoolComponent extends WidgetComponent implements AfterViewIni
   public diskSizeLabel: string;
   @Input() configurable:boolean;
 
-  constructor(public router: Router, public translate: TranslateService){
+  constructor(public router: Router, public translate: TranslateService, public storage: StorageService){
     super(translate);
     setTimeout(() => {
         if(!this.dataRcvd){
@@ -141,11 +142,11 @@ export class WidgetPoolComponent extends WidgetComponent implements AfterViewIni
             }
 
           }
-        
+
+          if(this.disks.length > 0){
+            this.storage.diskNameSort(this.disks);
+          } 
       }
-        if(this.disks.length > 0){
-          this.setSelectedDisk(0);
-        }
     });
 
 
@@ -187,7 +188,10 @@ export class WidgetPoolComponent extends WidgetComponent implements AfterViewIni
       }
     
       this.diskDetails.push(disk);
+    }
 
+    if (this.diskDetails.length > 0 && this.disks.length > 0) {
+      this.setSelectedDisk(this.disks[0]);
     }
     
     /*console.log(evt.data)
@@ -257,16 +261,16 @@ export class WidgetPoolComponent extends WidgetComponent implements AfterViewIni
     }
   }
 
-  setSelectedDisk(index?:number){
-    if(index >= 0){
+  setSelectedDisk(disk?: any){
+    if(disk){
       for(let i = 0; i < this.diskDetails.length; i++){
-        if(this.diskDetails[i].name == this.disks[index]){
+        if(this.diskDetails[i].name === disk){
           this.selectedDisk = i;
           this.core.emit({name:"StatsDiskTempRequest", data:[this.diskDetails[i].name, i] });
         } 
       }
     } else {
-      this.selectedDisk = -1;
+      this.selectedDisk = -1; 
     }
   }
 

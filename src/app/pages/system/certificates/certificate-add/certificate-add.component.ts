@@ -1,13 +1,10 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
-import {Subscription} from 'rxjs';
-
 import { RestService, SystemGeneralService, WebSocketService } from '../../../../services/';
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
-import { T } from '../../../../translate-marker';
-import { matchOtherValidator } from '../../../common/entity/entity-form/validators/password-validation';
+import { helptext_system_certificates } from 'app/helptext/system/certificates';
+import { helptext_system_ca } from 'app/helptext/system/ca';
 
 @Component({
   selector : 'system-certificate-add',
@@ -24,17 +21,17 @@ export class CertificateAddComponent {
     {
       type : 'input',
       name : 'name',
-      placeholder : T('Identifier'),
-      tooltip: T('Enter a description of the CA.'),
+      placeholder : helptext_system_certificates.add.name.placeholder,
+      tooltip: helptext_system_certificates.add.name.tooltip,
       required: true,
-      validation : [ Validators.required, Validators.pattern('[A-Za-z0-9_-]+$') ],
+      validation : helptext_system_certificates.add.name.validation,
       hasErrors: false,
       errors: 'Allowed characters: letters, numbers, underscore (_), and dash (-).'
     },
     {
       type : 'select',
       name : 'create_type',
-      placeholder : T('Type'),
+      placeholder : helptext_system_certificates.add.create_type.placeholder,
       options : [
         {label: 'Internal Certificate', value: 'CERTIFICATE_CREATE_INTERNAL'},
         {label: 'Certificate Signing Request', value: 'CERTIFICATE_CREATE_CSR'},
@@ -45,25 +42,60 @@ export class CertificateAddComponent {
     {
       type : 'select',
       name : 'signedby',
-      placeholder : T('Signing Certificate Authority'),
-      tooltip: T('Select a previously imported or created <a\
-                  href="%%docurl%%/system.html%%webversion%%#cas"\
-                  target="_blank">CA</a>.'),
+      placeholder : helptext_system_certificates.add.signedby.placeholder,
+      tooltip: helptext_system_certificates.add.signedby.tooltip,
       options : [
         {label: '---', value: null}
       ],
       isHidden: true,
       disabled: true,
       required: true,
-      validation: [Validators.required]
+      validation: helptext_system_certificates.add.signedby.validation
+    },
+    {
+      type : 'select',
+      name : 'key_type',
+      placeholder : helptext_system_certificates.add.key_type.placeholder,
+      tooltip: helptext_system_ca.add.key_type.tooltip,
+      options : [
+        {label: 'RSA', value: 'RSA'},
+        {label: 'EC', value: 'EC'}
+      ],
+      value: 'RSA',
+      isHidden: false,
+      disabled: true,
+      required: true,
+      validation: helptext_system_certificates.add.key_type.validation
+    },
+    {
+      type : 'select',
+      name : 'ec_curve',
+      placeholder : helptext_system_certificates.add.ec_curve.placeholder,
+      tooltip: helptext_system_ca.add.ec_curve.tooltip,
+      options : [
+        {label: 'BrainpoolP512R1', value: 'BrainpoolP512R1'},
+        {label: 'BrainpoolP384R1', value: 'BrainpoolP384R1'},
+        {label: 'BrainpoolP256R1', value: 'BrainpoolP256R1'},
+        {label: 'SECP256K1', value: 'SECP256K1'},
+      ],
+      value: 'BrainpoolP384R1',
+      isHidden: true,
+      disabled: true,
+      relation : [
+        {
+          action : 'ENABLE',
+          when : [ {
+            name : 'key_type',
+            value : 'EC',
+          } ]
+        },
+      ]
     },
     {
       type : 'select',
       name : 'key_length',
-      placeholder : T('Key Length'),
-      tooltip:T('The number of bits in the key used by the\
-                 cryptographic algorithm. For security reasons,\
-                 a minimum key length of <i>2048</i> is recommended.'),
+      placeholder : helptext_system_certificates.add.key_length.placeholder,
+      tooltip: helptext_system_certificates.add.key_length.tooltip,
       options : [
         {label : '1024', value : 1024},
         {label : '2048', value : 2048},
@@ -71,16 +103,23 @@ export class CertificateAddComponent {
       ],
       value: 2048,
       required: true,
-      validation: [Validators.required],
+      validation: helptext_system_certificates.add.key_length.validation,
       isHidden: false,
+      relation : [
+        {
+          action : 'ENABLE',
+          when : [ {
+            name : 'key_type',
+            value : 'RSA',
+          } ]
+        },
+      ]
     },
     {
       type : 'select',
       name : 'digest_algorithm',
-      placeholder : T('Digest Algorithm'),
-      tooltip: T('The cryptographic algorithm to use. The default\
-                  <i>SHA256</i> only needs to be changed if the\
-                  organization requires a different algorithm.'),
+      placeholder : helptext_system_certificates.add.digest_algorithm.placeholder,
+      tooltip: helptext_system_certificates.add.digest_algorithm.tooltip,
       options : [
         {label : 'SHA1', value : 'SHA1'},
         {label : 'SHA224', value : 'SHA224'},
@@ -90,117 +129,115 @@ export class CertificateAddComponent {
       ],
       value: 'SHA256',
       required: true,
-      validation: [Validators.required],
+      validation: helptext_system_certificates.add.digest_algorithm.validation,
       isHidden: false,
     },
     {
       type : 'input',
       name : 'lifetime',
-      placeholder : T('Lifetime'),
-      tooltip: T('The lifetime of the CA specified in days.'),
+      placeholder : helptext_system_certificates.add.lifetime.placeholder,
+      tooltip: helptext_system_certificates.add.lifetime.tooltip,
       inputType: 'number',
       required: true,
       value: 3650,
-      validation: [Validators.required, Validators.min(0)],
+      validation: helptext_system_certificates.add.lifetime.validation,
       isHidden: false,
     },
     {
       type : 'select',
       name : 'country',
-      placeholder : T('Country'),
-      tooltip: T('Select the country of the organization.'),
+      placeholder : helptext_system_certificates.add.country.placeholder,
+      tooltip: helptext_system_certificates.add.country.tooltip,
       options : [
       ],
       value: 'US',
       required: true,
-      validation: [Validators.required],
+      validation: helptext_system_certificates.add.country.validation,
       isHidden: false,
     },
     {
       type : 'input',
       name : 'state',
-      placeholder : T('State'),
-      tooltip: T('Enter the state or province of the organization.'),
+      placeholder : helptext_system_certificates.add.state.placeholder,
+      tooltip: helptext_system_certificates.add.state.tooltip,
       required: true,
-      validation: [Validators.required],
+      validation: helptext_system_certificates.add.state.validation,
       isHidden: false,
     },
     {
       type : 'input',
       name : 'city',
-      placeholder : T('Locality'),
-      tooltip: T('Enter the location of the organization. For example,\
-                  the city.'),
+      placeholder : helptext_system_certificates.add.city.placeholder,
+      tooltip: helptext_system_certificates.add.city.tooltip,
       required: true,
-      validation: [Validators.required],
+      validation: helptext_system_certificates.add.city.validation,
       isHidden: false,
     },
     {
       type : 'input',
       name : 'organization',
-      placeholder : T('Organization'),
-      tooltip: T('Enter the name of the company or organization.'),
+      placeholder : helptext_system_certificates.add.organization.placeholder,
+      tooltip: helptext_system_certificates.add.organization.tooltip,
       required: true,
-      validation: [Validators.required],
+      validation: helptext_system_certificates.add.organization.validation,
+      isHidden: false,
+    },
+    {
+      type : 'input',
+      name : 'organizational_unit',
+      placeholder : helptext_system_certificates.add.organizational_unit.placeholder,
+      tooltip: helptext_system_certificates.add.organizational_unit.tooltip,
+      required: false,
       isHidden: false,
     },
     {
       type : 'input',
       name : 'email',
-      placeholder : T('Email'),
-      tooltip: T('Enter the email address of the person responsible for\
-                  the CA.'),
+      placeholder : helptext_system_certificates.add.email.placeholder,
+      tooltip: helptext_system_certificates.add.email.tooltip,
       required: true,
-      validation : [ Validators.email, Validators.required ],
+      validation : helptext_system_certificates.add.email.validation,
       isHidden: false,
     },
     {
       type : 'input',
       name : 'common',
-      placeholder : T('Common Name'),
-      tooltip: T('Enter the <a href="https://kb.iu.edu/d/aiuv"\
-                  target="_blank">fully-qualified hostname (FQDN)</a> of\
-                  the system. This name must be unique within a\
-                  certificate chain.'),
+      placeholder : helptext_system_certificates.add.common.placeholder,
+      tooltip: helptext_system_certificates.add.common.tooltip,
       required: true,
-      validation : [ Validators.required ],
+      validation : helptext_system_certificates.add.common.validation,
       isHidden: false,
     },
     {
       type : 'textarea',
       name : 'san',
-      placeholder: T('Subject Alternate Names'),
-      tooltip: T('Multi-domain support. Enter additional domains to\
-                  secure, separated by spaces. For example, if the\
-                  primary domain is example.com, entering www.example.com\
-                  will secure both addresses.'),
+      placeholder: helptext_system_certificates.add.san.placeholder,
+      tooltip: helptext_system_certificates.add.san.tooltip,
       isHidden: false,
     },
     {
       type : 'textarea',
       name : 'certificate',
-      placeholder : T('Certificate'),
-      tooltip : T('Paste the certificate for the CA.'),
+      placeholder : helptext_system_certificates.add.certificate.placeholder,
+      tooltip : helptext_system_certificates.add.certificate.tooltip,
       required: true,
-      validation : [ Validators.required ],
+      validation : helptext_system_certificates.add.certificate.validation,
       isHidden: true,
     },
     {
       type : 'textarea',
       name : 'privatekey',
-      placeholder : T('Private Key'),
-      tooltip : T('Paste the private key associated with the\
-                   Certificate when available. Please provide\
-                   a key at least 1024 bits long.'),
+      placeholder : helptext_system_certificates.add.privatekey.placeholder,
+      tooltip : helptext_system_certificates.add.privatekey.tooltip,
       isHidden: true,
     },
     {
       type : 'input',
       name : 'passphrase',
-      placeholder : T('Passphrase'),
-      tooltip : T('Enter the passphrase for the Private Key.'),
+      placeholder : helptext_system_certificates.add.passphrase.placeholder,
+      tooltip : helptext_system_certificates.add.passphrase.tooltip,
       inputType : 'password',
-      validation : [ matchOtherValidator('passphrase2') ],
+      validation : helptext_system_certificates.add.passphrase.validation,
       isHidden: true,
       togglePw : true
     },
@@ -208,13 +245,15 @@ export class CertificateAddComponent {
       type : 'input',
       name : 'passphrase2',
       inputType : 'password',
-      placeholder : T('Confirm Passphrase'),
+      placeholder : helptext_system_certificates.add.passphrase2.placeholder,
       isHidden : true
     },
   ];
 
   private internalFields: Array<any> = [
     'signedby',
+    'key_type',
+    'ec_curve',
     'key_length',
     'digest_algorithm',
     'lifetime',
@@ -222,17 +261,21 @@ export class CertificateAddComponent {
     'state',
     'city',
     'organization',
+    'organizational_unit',
     'email',
     'common',
     'san',
   ];
   private csrFields: Array<any> = [
+    'key_type',
     'key_length',
+    'ec_curve',
     'digest_algorithm',
     'country',
     'state',
     'city',
     'organization',
+    'organizational_unit',
     'email',
     'common',
     'san',
@@ -281,6 +324,7 @@ export class CertificateAddComponent {
     for (let i in this.internalFields) {
       this.hideField(this.internalFields[i], false, entity);
     }
+    this.hideField(this.internalFields[2], true, entity)
 
     entity.formGroup.controls['create_type'].valueChanges.subscribe((res) => {
       if (res == 'CERTIFICATE_CREATE_INTERNAL') {
@@ -293,6 +337,14 @@ export class CertificateAddComponent {
         for (let i in this.internalFields) {
           this.hideField(this.internalFields[i], false, entity);
         }
+
+        // This block makes the form reset its 'disabled/hidden' settings on switch of type
+        if (entity.formGroup.controls['key_type'].value === 'RSA') {
+          this.hideField('ec_curve', true, entity);
+        } else if (entity.formGroup.controls['key_type'].value === 'EC') {
+          this.hideField('key_length', true, entity);
+        } 
+
       } else if (res == 'CERTIFICATE_CREATE_CSR') {
         for (let i in this.internalFields) {
           this.hideField(this.internalFields[i], true, entity);
@@ -303,6 +355,14 @@ export class CertificateAddComponent {
         for (let i in this.csrFields) {
           this.hideField(this.csrFields[i], false, entity);
         }
+
+        // This block makes the form reset its 'disabled/hidden' settings on switch of type
+        if (entity.formGroup.controls['key_type'].value === 'RSA') {
+          this.hideField('ec_curve', true, entity);
+        } else if (entity.formGroup.controls['key_type'].value === 'EC') {
+          this.hideField('key_length', true, entity);
+        }
+
       } else if (res == 'CERTIFICATE_CREATE_IMPORTED') {
         for (let i in this.internalFields) {
           this.hideField(this.internalFields[i], true, entity);
@@ -332,14 +392,14 @@ export class CertificateAddComponent {
   hideField(fieldName: any, show: boolean, entity: any) {
     let target = _.find(this.fieldConfig, {'name' : fieldName});
     target['isHidden'] = show;
-    entity.setDisabled(fieldName, show);
+    entity.setDisabled(fieldName, show, show);
   }
 
   beforeSubmit(data: any) {
     if (data.san == undefined || data.san == '') {
       data.san = [];
     } else {
-      data.san = _.split(data.san, ' ');
+      data.san = _.split(data.san, /\s/);
     }
 
     // Addresses non-pristine field being mistaken for a passphrase of ''

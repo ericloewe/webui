@@ -5,7 +5,6 @@ import { DatasetPermissionsComponent } from './volumes/datasets/dataset-permissi
 import { SnapshotAddComponent } from './snapshots/snapshot-add/';
 import { SnapshotCloneComponent } from './snapshots/snapshot-clone/';
 import { SnapshotListComponent } from './snapshots/snapshot-list/';
-import { SnapshotRollbackComponent } from './snapshots/snapshot-rollback/';
 import { DatasetFormComponent } from './volumes/datasets/dataset-form/';
 import { ManagerComponent } from './volumes/manager/';
 // import { VolumesEditComponent } from './volumes-edit/index';
@@ -25,6 +24,7 @@ import { VolumeCreatekeyFormComponent } from 'app/pages/storage/volumes/volumecr
 import { VolumeChangekeyFormComponent } from 'app/pages/storage/volumes/volumechangekey-form';
 import { VolumeImportWizardComponent} from './volumes/volume-import-wizard';
 import { VolumeStatusComponent } from './volumes/volume-status';
+import { MultipathsComponent } from './multipaths/multipaths.component';
 import { EntityDashboardComponent } from '../common/entity/entity-dashboard/entity-dashboard.component';
 
 export const routes: Routes = [
@@ -115,10 +115,6 @@ export const routes: Routes = [
             data: { title: 'Clone', breadcrumb: 'Clone' }
           },
           {
-            path: 'rollback/:pk', component: SnapshotRollbackComponent,
-            data: { title: 'Rollback', breadcrumb: 'Rollback' }
-          },
-          {
             path: 'add', component: SnapshotAddComponent,
             data: { title: 'Add', breadcrumb: 'Add' }
           }
@@ -168,6 +164,11 @@ export const routes: Routes = [
             data: { title: 'Wipe Disk', breadcrumb: 'Wipe Disk' }
           }
         ]
+      },
+      {
+        path: 'multipaths',
+        data: { title: 'Multipaths', breadcrumb: 'Multipaths', icon: 'view_stream' },
+        component: MultipathsComponent,
       },
       {
         path: 'import-disk', component: ImportDiskComponent,

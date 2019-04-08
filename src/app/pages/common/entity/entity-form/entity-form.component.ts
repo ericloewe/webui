@@ -116,6 +116,7 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
   public queryResponse;
   public saveSubmitText = "Save";
   public showPassword = false;
+  public isFooterConsoleOpen: boolean;
 
   get controls() {
     return this.fieldConfig.filter(({type}) => type !== 'button');
@@ -137,6 +138,7 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
   public success = false;
   public data: Object = {};
   public showDefaults: boolean = false;
+  public showSpinner: boolean = false;
 
   constructor(protected router: Router, protected route: ActivatedRoute,
               protected rest: RestService, protected ws: WebSocketService,
@@ -147,7 +149,10 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
               public snackBar: MatSnackBar,
               public adminLayout: AdminLayoutComponent,
               private dialog:DialogService,
-              public translate: TranslateService) {}
+              public translate: TranslateService) {
+                this.loader.callStarted.subscribe(() => this.showSpinner = true);
+                this.loader.callDone.subscribe(() => this.showSpinner = false);
+              }
 
   ngAfterViewInit() {
     this.templates.forEach((item) => {
@@ -168,6 +173,7 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
             this.conf.isBasicMode = true;
           }
         }
+        this.isFooterConsoleOpen = res.consolemsg;
       }
     });
 
@@ -350,7 +356,16 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
     }
     // ...but for entity forms that don't make a data request, this kicks in 
     setTimeout(() => { this.setShowDefaults(); }, 500);
+  }
 
+  checkIfConsoleMsgShows() {
+    setTimeout(() => {
+      this.ws.call('system.advanced.config').subscribe((res)=> {
+        if (res) {
+          this.isFooterConsoleOpen = res.consolemsg;
+        }
+      });
+    }, 500)
   }
 
   setShowDefaults() {
@@ -399,10 +414,7 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
   }
 
   editCall(body: any) {
-    const payload = []
-    const call = this.conf.editCall;
-    payload.push(body);
-    return this.ws.call(call, payload);
+    return this.ws.call(this.conf.editCall, [this.pk, body]);
   }
 
   addSubmit(body: any) {
@@ -414,7 +426,7 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
     return this.rest.post(resource, {body}, this.conf.route_usebaseUrl); 
   }
 
-  onSubmit(event: Event) {
+  onSubmit(event: Event) {   
     if (this.conf.confirmSubmit && this.conf.confirmSubmitDialog) {
       this.dialog.confirm(this.conf.confirmSubmitDialog['title'],
                           this.conf.confirmSubmitDialog['message'], 
@@ -434,6 +446,7 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
   }
 
   doSubmit(event: Event) {  
+    this.checkIfConsoleMsgShows();
     event.preventDefault();
     event.stopPropagation();
     this.error = null;
@@ -540,11 +553,14 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
     return this.fb.control({disabled, value}, validation);
   }
 
-  setDisabled(name: string, disable: boolean, hide: boolean = false, status?:string) {
-    // if field will be hide, disabled it too
+  setDisabled(name: string, disable: boolean, hide?: boolean, status?:string) {
+    // if field is hidden, disable it too
     if (hide) {
       disable = hide;
+    } else {
+      hide = false;
     }
+
 
     this.fieldConfig = this.fieldConfig.map((item) => {
       if (item.name === name) {

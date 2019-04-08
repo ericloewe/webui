@@ -64,6 +64,7 @@ export class ManagerComponent implements OnInit, OnDestroy, AfterViewInit {
   public dirty = false;
   protected existing_pools = [];
   public poolError = null;
+  public isFooterConsoleOpen: boolean;
 
   public submitTitle = T("Create");
   protected extendedSubmitTitle = T("Extend");
@@ -247,6 +248,11 @@ export class ManagerComponent implements OnInit, OnDestroy, AfterViewInit {
 
       this.temp = [...this.disks];
     });
+    this.ws.call('system.advanced.config').subscribe((res)=> {
+      if (res) {
+        this.isFooterConsoleOpen = res.consolemsg;
+      }
+    });
   }
 
   ngAfterViewInit() {
@@ -383,12 +389,14 @@ export class ManagerComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   doSubmit() {
+    let confirmButton = T('Create Pool');
     let diskWarning = this.diskAddWarning;
     if (!this.isNew) {
+      confirmButton = T('Extend Pool');
       diskWarning = this.diskExtendWarning;
     }
 
-    this.dialog.confirm(T("Warning"), diskWarning, false, T('Create Pool')).subscribe((res) => {
+    this.dialog.confirm(T("Warning"), diskWarning, false, confirmButton).subscribe((res) => {
       if (res) {
         this.error = null;
 

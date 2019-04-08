@@ -16,7 +16,6 @@ import { StorageService } from '../../services/storage.service';
 import { SnapshotAddComponent } from './snapshots/snapshot-add/';
 import { SnapshotCloneComponent } from './snapshots/snapshot-clone/';
 import { SnapshotListComponent } from './snapshots/snapshot-list/';
-import { SnapshotRollbackComponent } from './snapshots/snapshot-rollback/';
 import { DatasetFormComponent } from './volumes/datasets/dataset-form/';
 import { DatasetPermissionsComponent } from './volumes/datasets/dataset-permissions/'
 import {ImportDiskComponent} from './import-disk/import-disk.component';
@@ -26,6 +25,7 @@ import { DiskComponent, ManagerComponent, VdevComponent } from './volumes/manage
 import { VolumeDeleteComponent } from './volumes/volume-delete/';
 import { VolumesListComponent } from './volumes/volumes-list/';
 import { VolumeStatusComponent } from './volumes/volume-status';
+import { MultipathsComponent } from './multipaths/multipaths.component';
 import { routing } from './storage.routing';
 import { ZvolFormComponent } from './volumes/zvol/zvol-form'
 import { VMwareSnapshotFormComponent } from './VMware-snapshot/VMware-snapshot';
@@ -66,7 +66,6 @@ import { MessageService } from '../common/entity/entity-form/services/message.se
     VolumeImportWizardComponent,
     SnapshotListComponent,
     SnapshotCloneComponent,
-    SnapshotRollbackComponent,
     SnapshotAddComponent,
     ImportDiskComponent,
     DatasetPermissionsComponent,
@@ -74,6 +73,7 @@ import { MessageService } from '../common/entity/entity-form/services/message.se
     VMwareSnapshotListComponent,
     DiskListComponent,
     VolumeStatusComponent,
+    MultipathsComponent,
     DiskFormComponent,
     DiskWipeComponent,
     DiskBulkEditComponent

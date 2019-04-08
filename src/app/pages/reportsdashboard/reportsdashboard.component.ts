@@ -81,12 +81,15 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy, HandleChart
   public filteredPaginatedData: ChartConfigData[] = [];
   public chartLayout = 'Grid'; // Defaults to grid layout
   //@ViewChild('chartWidth') chartWidth: MatButtonToggleGroup; 
+  public isFooterConsoleOpen: boolean;
   @ViewChild('pager') pagerElement;
   
   
 
 
-  constructor(private _lineChartService: LineChartService, private erdService: ErdService, public translate: TranslateService, private router:Router, private core:CoreService) {
+  constructor(private _lineChartService: LineChartService, private erdService: ErdService, 
+    public translate: TranslateService, private router:Router, private core:CoreService, 
+    protected ws: WebSocketService) {
   }
 
   setupSubscriptions(){
@@ -253,10 +256,22 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy, HandleChart
   }
 
   ngOnInit() { 
-    this._lineChartService.getChartConfigData(this);
+    this._lineChartService.getChartConfigData(/*this*/);
+
+    this.core.register({observerClass: this, eventName:"CacheConfigData"}).subscribe((evt:CoreEvent) => {
+      this.handleChartConfigDataFunc(evt.data);
+    });
+
+    this.ws.call('system.advanced.config').subscribe((res)=> {
+      if (res) {
+        this.isFooterConsoleOpen = res.consolemsg;
+      }
+    });
+
   }
 
   ngOnDestroy() {
+    this.core.unregister({observerClass:this});
   }
 
   ngAfterViewInit(): void {
@@ -269,7 +284,7 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy, HandleChart
    * Go through the flat list.. And collect the ones I want for each Tab I want to show.
    */
   handleChartConfigDataFunc(chartConfigData: ChartConfigData[]) {
-     
+  
     const map: Map<string, TabChartsMappingData> = new Map<string, TabChartsMappingData>();
 
     // For every one of these map entries.. You see one tab in the UI With the charts collected for that tab
@@ -335,15 +350,25 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy, HandleChart
     // The non known buckets.. Just get one tab/one chart. (for now).. Will eventually 
     // move towards.. just knowing the ones I want.
     chartConfigData.forEach((chartConfigDataItem: ChartConfigData) => {
-      if (chartConfigDataItem.title === "CPU" || chartConfigDataItem.title === "Load") {
+      if (chartConfigDataItem.title === "CPU" || chartConfigDataItem.title === "Load" || chartConfigDataItem.title.startsWith("cputemp-")) {
         const tab: TabChartsMappingData = map.get("CPU");
         tab.chartConfigData.push(chartConfigDataItem);
+        // Clean up the title
+        if(chartConfigDataItem.title.startsWith('cputemp-')){
+          let spl = chartConfigDataItem.title.split("cputemp-");
+          chartConfigDataItem.title = "CPU Temperature (cpu" + spl[1] + ")";
+        } 
+
+        if(chartConfigDataItem.title == "Load"){
+          chartConfigDataItem.title = "CPU Load";
+        }
+
 
       } else if (chartConfigDataItem.title.toLowerCase().startsWith("memory") || chartConfigDataItem.title.toLowerCase().startsWith("swap")) {
         const tab: TabChartsMappingData = map.get("Memory");
         tab.chartConfigData.push(chartConfigDataItem);
 
-      } else if (chartConfigDataItem.title.toLowerCase() === "processes" /*|| chartConfigDataItem.title.toLowerCase() === "uptime"*/) {
+      } else if (chartConfigDataItem.title.toLowerCase() === "processes") {
         const tab: TabChartsMappingData = map.get("System");
         tab.chartConfigData.push(chartConfigDataItem);
 
@@ -354,6 +379,10 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy, HandleChart
       } else if (chartConfigDataItem.title.startsWith("disk")) {
         const tab: TabChartsMappingData = map.get("Disk");
         tab.chartConfigData.push(chartConfigDataItem);
+        if(chartConfigDataItem.title.startsWith('disktemp-')){
+          let spl = chartConfigDataItem.title.split("disktemp-");
+          chartConfigDataItem.title = "Disk Temperature " + spl[1];
+        } 
 
       } else if (chartConfigDataItem.title.startsWith("interface-")) {
         const tab: TabChartsMappingData = map.get("Network");
@@ -380,10 +409,16 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy, HandleChart
       this.tabChartsMappingDataArray.push(value);
     });
   
+        
+    // Put CPU and Load charts before the temperature charts
+    this.tabChartsMappingDataArray[0].chartConfigData.sort((a,b) => {return a.title > b.title ? 1 : -1;});
+    //console.log(this.tabChartsMappingDataArray.length);
+
     this.drawTabs = true;
     this.showSpinner = false;
     this.activateTabFromUrl();
   }// End handleChartConfigDataFunc Method
+  
 
   activeTabToKeyname(){
     if(this.activeTab){ return "false"}

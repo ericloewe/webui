@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import {RestService} from '../../../../services/rest.service';
 
 import {EntityTableComponent} from './entity-table.component';
-import { Observable } from 'rxjs/Observable';
+import { interval } from 'rxjs';
 import * as _ from 'lodash';
 
 @Component({
@@ -36,12 +36,12 @@ export class EntityTableActionsComponent implements OnInit {
   ngOnInit() {
     if (this.entity.conf.config && this.entity.conf.config.deleteMsg) {
       this.key_prop = this.entity.conf.config.deleteMsg.key_props[0];
-    } else {
-      this.key_prop = this.entity.conf.columns[0].prop;
+    } else if (this.entity.filterColumns) {
+      this.key_prop = this.entity.filterColumns[0].prop;
     }
     this.actions = this.entity.getActions(this.row);
     
-    Observable.interval(5000).subscribe((val) => {
+    interval(5000).subscribe((val) => {
       this.actions = this.entity.getActions(this.row);
       const removeIds = [];
       for (let i = 0; i < this.actions.length; i++) {

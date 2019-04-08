@@ -21,6 +21,8 @@ export class DashboardComponent implements OnInit,OnDestroy {
   public zPoolFlex:string = "100";
   public noteFlex:string = "23";
 
+  public isFooterConsoleOpen: boolean;
+
   // For widgetpool
   public volumes: VolumeData[] = [];
   public disks:Disk[] = [];
@@ -30,7 +32,7 @@ export class DashboardComponent implements OnInit,OnDestroy {
 
   public showSpinner: boolean = true;
 
-  constructor(protected core:CoreService, stats: StatsService){
+  constructor(protected core:CoreService, stats: StatsService, protected ws: WebSocketService){
     //this.core.emit({name:"StatsAddListener", data:{name:"CpuAggregate", key:"sum", obj:this }});
     //this.core.emit({name:"StatsAddListener", data:{name:"CpuAggregate", key:"average", obj:this }});
     //this.core.emit({name:"StatsAddListener", data:{name:"CpuAggregate", key:"test", obj:this }});
@@ -43,9 +45,15 @@ export class DashboardComponent implements OnInit,OnDestroy {
 
   ngOnInit(){
     this.init();
+    this.ws.call('system.advanced.config').subscribe((res)=> {
+      if (res) {
+        this.isFooterConsoleOpen = res.consolemsg;
+      }
+    });
   }
 
   ngOnDestroy(){
+    this.core.emit({name:"StatsKillAll", sender:this});
     this.core.unregister({observerClass:this});
   }
 
@@ -91,8 +99,12 @@ export class DashboardComponent implements OnInit,OnDestroy {
     //DEBUG: console.log(evt.data);
     let result = [];
     for(let i in evt.data){
+      let avail = null;
+      if (evt.data[i].children && evt.data[i].children[0]) {
+        avail = evt.data[i].children[0].avail;
+      }
       let zvol = {
-        avail: evt.data[i].children[0].avail,
+        avail: avail,
         id:evt.data[i].id,
         is_decrypted:evt.data[i].is_decrypted,
         is_upgraded:evt.data[i].is_upgraded,
